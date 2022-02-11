@@ -94,13 +94,18 @@ exports.readBook = (req, res) => {
 	try {
 		const id = req.params.id;
 
-		const bookExists = Book.findOne({ isbn: id }).exec((err, book) => {
-			if (err || !book) {
-				return res.status(400).json({ error: "Book does not exist!" });
-			}
+		const bookExists = Book.findOne({ isbn: id })
+			.populate("addedBy", "_id name")
+			.populate("sequel", "_id name")
+			.exec((err, book) => {
+				if (err || !book) {
+					return res
+						.status(400)
+						.json({ error: "Book does not exist!" });
+				}
 
-			res.send(book);
-		});
+				res.send(book);
+			});
 	} catch (error) {
 		console.log(error);
 	}
@@ -108,7 +113,10 @@ exports.readBook = (req, res) => {
 
 exports.getBooks = async (req, res) => {
 	try {
-		const bookList = await Book.find({});
+		const bookList = await Book.find()
+			.populate("addedBy", "_id name")
+			.populate("sequel", "_id name")
+			.exec();
 
 		res.send(bookList);
 	} catch (error) {
