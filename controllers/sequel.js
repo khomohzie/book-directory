@@ -47,14 +47,6 @@ exports.readSequel = async (req, res) => {
 					as: "books",
 				},
 			},
-			{
-				$lookup: {
-					from: "users",
-					localField: "addedBy",
-					foreignField: "_id",
-					as: "addedBy",
-				},
-			},
 		]);
 
 		res.send(sequelData);
@@ -72,14 +64,6 @@ exports.getSequels = async (req, res) => {
 					localField: "_id",
 					foreignField: "sequel",
 					as: "books",
-				},
-			},
-			{
-				$lookup: {
-					from: "users",
-					localField: "addedBy",
-					foreignField: "_id",
-					as: "addedBy",
 				},
 			},
 		]);
