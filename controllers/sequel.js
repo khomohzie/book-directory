@@ -16,10 +16,13 @@ exports.create = async (req, res) => {
 				});
 			}
 
-			res.json(data);
+			res.status(200).json(data);
 		});
 	} catch (err) {
 		console.log(err);
+		return res
+			.status(400)
+			.send("Failed to create sequel! Please try again.");
 	}
 };
 
@@ -49,9 +52,12 @@ exports.readSequel = async (req, res) => {
 			},
 		]);
 
-		res.send(sequelData);
+		res.status(200).send(sequelData);
 	} catch (err) {
 		console.log(err);
+		return res
+			.status(400)
+			.send("Failed to fetch sequel! Please try again.");
 	}
 };
 
@@ -70,8 +76,9 @@ exports.getSequels = async (req, res) => {
 		// .populate("addedBy", "_id name")
 		// .exec();
 
-		res.send(sequelList);
+		res.status(200).send(sequelList);
 	} catch (err) {
 		console.log(err);
+		return res.status(400).send("Request failed! Please try again.");
 	}
 };

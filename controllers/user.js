@@ -13,6 +13,9 @@ exports.register = (req, res) => {
 			}
 
 			let newUser = new User({ name, email, password });
+
+			newUser.encryptPassword(password);
+
 			newUser.save((err, success) => {
 				if (err) {
 					return res.status(400).json({
@@ -20,17 +23,20 @@ exports.register = (req, res) => {
 					});
 				}
 
-				res.json({
+				res.status(200).json({
 					message: "Signup success! Please signin.",
 				});
 			});
 		});
 	} catch (err) {
 		console.log(err);
+		return res
+			.status(400)
+			.send("Failed to create account! Please try again.");
 	}
 };
 
-exports.signin = (req, res) => {
+exports.signin = async (req, res) => {
 	try {
 		const { email, password } = req.body;
 
@@ -41,7 +47,9 @@ exports.signin = (req, res) => {
 				});
 			}
 
-			if (password !== user.password) {
+			const authenticatePassword = user.authenticatePassword(password);
+
+			if (!authenticatePassword) {
 				return res.status(400).json({
 					error: "Email and password do not match.",
 				});
@@ -49,34 +57,36 @@ exports.signin = (req, res) => {
 
 			const { _id, name, email } = user;
 
-			return res.json({
+			return res.status(200).json({
 				user: { _id, name, email },
 			});
 		});
 	} catch (err) {
 		console.log(err);
+		return res.status(400).send("Failed! Please try again.");
 	}
 };
 
-exports.getUsers = (req, res) => {
+exports.getUsers = async (req, res) => {
 	try {
-		User.find({}, { _id: 0, name: 1, email: 1 }, (err, user) => {
+		await User.find({}, { _id: 0, name: 1, email: 1 }, (err, user) => {
 			if (err) {
 				return res.status(400).json({
 					error: err,
 				});
 			}
 
-			res.json(user);
+			res.status(200).json(user);
 		});
 	} catch (err) {
 		console.log(err);
+		return res.status(400).send("Request failed! Please try again.");
 	}
 };
 
-exports.requireUser = (req, res, next) => {
+exports.requireUser = async (req, res, next) => {
 	try {
-		User.findOne({ _id: req.body.addedBy }, (err, user) => {
+		await User.findOne({ _id: req.body.addedBy }, (err, user) => {
 			if (err || !user) {
 				return res
 					.status(400)
@@ -87,6 +97,7 @@ exports.requireUser = (req, res, next) => {
 		});
 	} catch (error) {
 		console.log(error);
+		return res.status(400).send("Request failed! Please try again.");
 	}
 };
 
@@ -110,5 +121,6 @@ exports.canUpdateDeleteBook = (req, res, next) => {
 		});
 	} catch (error) {
 		console.log(error);
+		return res.status(400).send("Request failed! Please try again.");
 	}
 };
