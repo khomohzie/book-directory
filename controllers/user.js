@@ -84,9 +84,9 @@ exports.getUsers = async (req, res) => {
 	}
 };
 
-exports.requireUser = async (req, res, next) => {
+exports.requireUser = (req, res, next) => {
 	try {
-		await User.findOne({ _id: req.body.addedBy }, (err, user) => {
+		User.findOne({ _id: req.body.addedBy }, (err, user) => {
 			if (err || !user) {
 				return res
 					.status(400)

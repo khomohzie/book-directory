@@ -25,7 +25,6 @@ exports.create = (req, res) => {
 exports.update = async (req, res) => {
 	try {
 		const id = req.params.id;
-		const { title, isbn, author, sequel } = req.body;
 
 		const bookExists = await Book.findOne({ isbn: id }).exec();
 
@@ -33,36 +32,19 @@ exports.update = async (req, res) => {
 			return res.status(400).json({ error: "Book does not exist!" });
 		}
 
-		// Only update fields for which new values are entered else leave as-is.
-		const updateField = (newValue, oldValue) =>
-			!newValue ? oldValue : newValue;
+		for (const field in req.body) {
+			bookExists[field] = req.body[field];
+		}
 
-		const updatedBook = {
-			...bookExists,
-			title: updateField(title, bookExists.title),
-			isbn: updateField(isbn, bookExists.isbn),
-			author: updateField(author, bookExists.author),
-			sequel: updateField(sequel, bookExists.sequel),
-		};
-
-		Book.updateOne(
-			{ isbn: id },
-			{
-				$set: {
-					title: updatedBook.title,
-					isbn: updatedBook.isbn,
-					author: updatedBook.author,
-					Sequel: updatedBook.sequel,
-				},
-			}
-		).exec((err, book) => {
+		await bookExists.save((err, result) => {
 			if (err) {
-				return res
-					.status(400)
-					.send("Could not be updated! Maybe duplicate isbn.");
+				return res.status(400).json({
+					error: err,
+				});
 			}
 
-			res.status(200).send("Book updated successfully!");
+			const updatedBook = ["Success!", result];
+			res.json(updatedBook);
 		});
 	} catch (error) {
 		console.log(error);

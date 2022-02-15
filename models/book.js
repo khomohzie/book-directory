@@ -17,7 +17,6 @@ const bookSchema = new mongoose.Schema(
         sequel: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Sequel",
-            required: true,
         },
         addedBy: {
             type: mongoose.Schema.Types.ObjectId,
